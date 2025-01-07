@@ -302,6 +302,11 @@ reduce_lr = ReduceLROnPlateau(
     patience = 5,
     min_lr = 1e-6)
 
+from keras.layers import Normalization
+normalizer = Normalization(axis = -1)
+xtrain_array = np.array(xtrain)
+normalizer.adapt(xtrain_array)
+
 import time
 start_time = time.time()
 early_stopping = keras.callbacks.EarlyStopping(
@@ -312,8 +317,9 @@ early_stopping = keras.callbacks.EarlyStopping(
 
 def tuning_ann(hp):
     model = keras.Sequential()
-    model.add(keras.layers.Input(
-        shape = (xtrain.shape[1],)))
+    model.add(normalizer)
+#    model.add(keras.layers.Input(
+#        shape = (xtrain.shape[1],)))
 
     nums_layers = hp.Int('nums_layers', 1, 3, 1)
     max_units = 64  
