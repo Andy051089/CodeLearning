@@ -293,6 +293,15 @@ print(f' test_normal_ann AUC score: {test_auc:.5f}')
 #     callbacks=[checkpoint_callback])
 
 # best_model = keras.models.load_model('best_model.keras')
+
+from keras.callbacks import ReduceLROnPlateau
+reduce_lr = ReduceLROnPlateau(
+    monitor = 'val_auc',
+    mode = 'max',
+    factor = 0.5,
+    patience = 5,
+    min_lr = 1e-6)
+
 import time
 start_time = time.time()
 early_stopping = keras.callbacks.EarlyStopping(
@@ -357,7 +366,7 @@ def tuning_ann(hp):
 
 bayes_tuning_ann = keras_tuner.BayesianOptimization(
     tuning_ann,
-    objective = keras_tuner.Objective("val_auc", direction="max"),
+    objective = keras_tuner.Objective('val_auc', direction = 'max'),
     max_trials = 5,
     num_initial_points = 10)  
 # 把資料FIT進去找
@@ -367,7 +376,7 @@ bayes_tuning_ann.search(
     batch_size = 64,
     class_weight = class_weight,
     validation_data = val_data,          
-    callbacks = [early_stopping])
+    callbacks = [early_stopping, reduce_lr])
 end_time = time.time()
 end_time-start_time
 
